@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eteris Radio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Eteris Radio</div>
+            <ul>
+                <li><a href="#home">Inicio</a></li>
+                <li><a href="#about">Nosotros</a></li>
+                <li><a href="#schedule">Programación</a></li>
+                <li><a href="#contact">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
 
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1>Bienvenido a Eteris Radio</h1>
+                <p>Tu estación favorita para la mejor música y entretenimiento.</p>
+                <button id="play-pause-btn" class="btn">Escucha Ahora</button>
+            </div>
+        </section>
+
+        <audio id="radio-player" src="https://stream.eteris.com/live" preload="auto"></audio>
+
+        </section>
+
+        <section id="about" class="about">
+            <h2>Nosotros</h2>
+            <p>Eteris Radio es una estación de radio virtual dedicada a brindarte una experiencia auditiva única. Con una mezcla de géneros musicales, programas en vivo y entrevistas exclusivas, nos esforzamos por ser tu compañero diario.</p>
+        </section>
+
+        <section id="schedule" class="schedule">
+            <h2>Programación</h2>
+            <div class="schedule-grid">
+                <div class="program-card">
+                    <h3>Mañanas Activas</h3>
+                    <p>Lunes a Viernes | 7:00 AM - 10:00 AM</p>
+                </div>
+                <div class="program-card">
+                    <h3>Pop Top Hits</h3>
+                    <p>Todos los días | 10:00 AM - 1:00 PM</p>
+                </div>
+                <div class="program-card">
+                    <h3>Noches de Jazz</h3>
+                    <p>Sábados y Domingos | 8:00 PM - 11:00 PM</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <h2>Contacto</h2>
+            <p>¿Tienes alguna pregunta o sugerencia? ¡Nos encantaría escucharte!</p>
+            <form>
+                <input type="text" placeholder="Tu Nombre">
+                <input type="email" placeholder="Tu Correo Electrónico">
+                <textarea placeholder="Tu Mensaje"></textarea>
+                <button type="submit" class="btn">Enviar</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Eteris Radio. Todos los derechos reservados.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
