@@ -427,6 +427,7 @@ button,
         overflow: hidden;
         transition: max-height 0.3s ease;
         border-bottom: 1px solid rgba(255, 69, 96, 0.12);
+        z-index: 102;
     }
 
     .nav-links.active {
@@ -439,6 +440,11 @@ button,
 
     .menu-toggle {
         display: block;
+    }
+
+    /* Disable fixed background on smaller screens to avoid rendering gaps */
+    .section-hero {
+        background-attachment: scroll;
     }
 
     .section-content {
