@@ -46,6 +46,11 @@ nav {
     color: #e0e0e0;
 }
 
+.logo-img {
+    height: 50px; /* Adjust as needed */
+    width: auto;
+}
+
 nav ul {
     list-style: none;
     margin: 0;
