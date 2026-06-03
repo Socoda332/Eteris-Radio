@@ -117,6 +117,18 @@ nav ul li a:hover {
     color: #ff7a7a;
 }
 
+.player-embed {
+    margin: 30px auto 0;
+    max-width: 520px;
+    width: 100%;
+}
+
+.player-embed iframe,
+.player-embed embed,
+.player-embed object {
+    width: 100%;
+}
+
 /* Sections */
 section {
     padding: 60px 20px;
