@@ -107,6 +107,16 @@ nav ul li a:hover {
     background-color: #c93050;
 }
 
+.player-status {
+    margin-top: 20px;
+    color: #dcdcdc;
+    font-size: 1rem;
+}
+
+.player-status.error {
+    color: #ff7a7a;
+}
+
 /* Sections */
 section {
     padding: 60px 20px;
