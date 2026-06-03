@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">Eteris Radio</div>
-            <ul>
+    <header class="site-header">
+        <nav class="navbar container">
+            <a class="logo" href="#home">Eteris Radio</a>
+            <ul class="nav-links">
                 <li><a href="#home">Inicio</a></li>
                 <li><a href="#about">Nosotros</a></li>
                 <li><a href="#schedule">Programación</a></li>
@@ -21,56 +21,66 @@
     </header>
 
     <main>
-        <section id="home" class="hero">
-            <div class="hero-content">
+        <section id="home" class="hero section-hero">
+            <div class="section-content container">
+                <span class="eyebrow">Estación Online</span>
                 <h1>Bienvenido a Eteris Radio</h1>
-                <p>Tu estación favorita para la mejor música y entretenimiento.</p>
-                <div id="player-status" class="player-status">Reproductor integrado de MyRadioStream abajo.</div>
+                <p>La mejor música, los mejores programas y una experiencia en vivo desde cualquier lugar.</p>
+
+                <div class="player-status">Reproductor integrado de MyRadioStream abajo.</div>
                 <div id="player-embed" class="player-embed">Cargando reproductor...</div>
-                <div class="player-actions">
-                    <a href="http://Aramis.on-air.fm/" target="_blank" rel="noopener" class="btn">Ver landing de MyRadioStream</a>
+                <div class="hero-actions">
+                    <a href="http://Aramis.on-air.fm/" target="_blank" rel="noopener" class="btn">Visitar MyRadioStream</a>
                 </div>
                 <script src="https://myradiostream.com/embed/Aramis" async></script>
             </div>
         </section>
 
-        <section id="about" class="about">
-            <h2>Nosotros</h2>
-            <p>Eteris Radio es una estación de radio virtual dedicada a brindarte una experiencia auditiva única. Con una mezcla de géneros musicales, programas en vivo y entrevistas exclusivas, nos esforzamos por ser tu compañero diario.</p>
+        <section id="about" class="about section-about">
+            <div class="section-content container">
+                <h2>Nosotros</h2>
+                <p>Eteris Radio es una estación virtual dedicada a entregarte una experiencia auditiva única. Mezclamos géneros, programas en vivo y entrevistas especiales para acompañarte a donde vayas.</p>
+            </div>
         </section>
 
-        <section id="schedule" class="schedule">
-            <h2>Programación</h2>
-            <div class="schedule-grid">
-                <div class="program-card">
-                    <h3>Mañanas Activas</h3>
-                    <p>Lunes a Viernes | 7:00 AM - 10:00 AM</p>
-                </div>
-                <div class="program-card">
-                    <h3>Pop Top Hits</h3>
-                    <p>Todos los días | 10:00 AM - 1:00 PM</p>
-                </div>
-                <div class="program-card">
-                    <h3>Noches de Jazz</h3>
-                    <p>Sábados y Domingos | 8:00 PM - 11:00 PM</p>
+        <section id="schedule" class="schedule section-schedule">
+            <div class="section-content container">
+                <h2>Programación</h2>
+                <div class="schedule-grid">
+                    <div class="program-card">
+                        <h3>Mañanas Activas</h3>
+                        <p>Lunes a Viernes | 7:00 AM - 10:00 AM</p>
+                    </div>
+                    <div class="program-card">
+                        <h3>Pop Top Hits</h3>
+                        <p>Todos los días | 10:00 AM - 1:00 PM</p>
+                    </div>
+                    <div class="program-card">
+                        <h3>Noches de Jazz</h3>
+                        <p>Sábados y Domingos | 8:00 PM - 11:00 PM</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="contact">
-            <h2>Contacto</h2>
-            <p>¿Tienes alguna pregunta o sugerencia? ¡Nos encantaría escucharte!</p>
-            <form>
-                <input type="text" placeholder="Tu Nombre">
-                <input type="email" placeholder="Tu Correo Electrónico">
-                <textarea placeholder="Tu Mensaje"></textarea>
-                <button type="submit" class="btn">Enviar</button>
-            </form>
+        <section id="contact" class="contact section-contact">
+            <div class="section-content container">
+                <h2>Contacto</h2>
+                <p>¿Tienes alguna pregunta o sugerencia? Escríbenos y te responderemos pronto.</p>
+                <form class="contact-form">
+                    <input type="text" placeholder="Tu nombre" required>
+                    <input type="email" placeholder="Tu correo electrónico" required>
+                    <textarea placeholder="Tu mensaje" rows="5" required></textarea>
+                    <button type="submit" class="btn">Enviar</button>
+                </form>
+            </div>
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Eteris Radio. Todos los derechos reservados.</p>
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 Eteris Radio. Todos los derechos reservados.</p>
+        </div>
     </footer>
     <script src="script.js"></script>
 </body>
