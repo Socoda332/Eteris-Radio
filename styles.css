@@ -141,11 +141,13 @@ button,
     color: #d9e0ff;
 }
 
-.hero-actions {
+.hero-actions,
+.section-action {
     display: flex;
     justify-content: center;
     gap: 16px;
     flex-wrap: wrap;
+    margin-top: 28px;
 }
 
 .btn {
