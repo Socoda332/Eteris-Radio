@@ -425,13 +425,20 @@ button,
         padding: 16px 12px;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transition: transform 0.28s ease, opacity 0.28s ease;
         border-bottom: 1px solid rgba(255, 69, 96, 0.12);
         z-index: 102;
+        transform-origin: top;
+        transform: scaleY(0);
+        opacity: 0;
+        pointer-events: none;
     }
 
     .nav-links.active {
         max-height: 500px;
+        transform: scaleY(1);
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .nav-links li {
@@ -440,6 +447,14 @@ button,
 
     .menu-toggle {
         display: block;
+    }
+
+    .menu-toggle {
+        transition: transform 0.22s ease, color 0.18s ease;
+    }
+
+    .menu-toggle.active {
+        transform: rotate(90deg);
     }
 
     /* Disable fixed background on smaller screens to avoid rendering gaps */
@@ -472,6 +487,12 @@ button,
 
     .btn {
         min-width: 120px;
+    }
+
+    /* Prevent background scroll when mobile menu is open */
+    body.menu-open {
+        overflow: hidden;
+        height: 100vh;
     }
 }
 

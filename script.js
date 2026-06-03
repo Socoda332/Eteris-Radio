@@ -5,31 +5,52 @@ document.addEventListener('DOMContentLoaded', () => {
         playerStatus.textContent = 'Usando el reproductor embed oficial de MyRadioStream.';
     }
 
-    // Mobile menu toggle
-    const menuToggle = document.querySelector('.menu-toggle');
-    const navLinks = document.querySelector('.nav-links');
+    // Mobile menu toggle with accessibility and scroll lock
+    const menuToggle = document.getElementById('menu-toggle') || document.querySelector('.menu-toggle');
+    const navLinks = document.getElementById('primary-navigation') || document.querySelector('.nav-links');
 
-    if (menuToggle) {
-        menuToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            menuToggle.classList.toggle('active');
+    const closeMenu = () => {
+        if (navLinks) navLinks.classList.remove('active');
+        if (menuToggle) {
+            menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }
+        document.body.classList.remove('menu-open');
+    };
+
+    const openMenu = () => {
+        if (navLinks) navLinks.classList.add('active');
+        if (menuToggle) {
+            menuToggle.classList.add('active');
+            menuToggle.setAttribute('aria-expanded', 'true');
+        }
+        document.body.classList.add('menu-open');
+    };
+
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            if (navLinks.classList.contains('active')) closeMenu(); else openMenu();
         });
 
         // Close menu when clicking on a link
         const links = navLinks.querySelectorAll('a');
         links.forEach(link => {
             link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-                menuToggle.classList.remove('active');
+                closeMenu();
             });
         });
 
         // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
-                navLinks.classList.remove('active');
-                menuToggle.classList.remove('active');
+                closeMenu();
             }
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMenu();
         });
     }
 
