@@ -31,10 +31,13 @@
 
         <section class="section-contact">
             <div class="section-content container">
-                <form class="contact-form">
-                    <input type="text" placeholder="Tu nombre" required>
-                    <input type="email" placeholder="Tu correo electrónico" required>
-                    <textarea placeholder="Tu mensaje" rows="6" required></textarea>
+                <form class="contact-form" action="https://formsubmit.co/samuelgil3451@gmail.com" method="POST">
+                    <input type="hidden" name="_subject" value="Nuevo mensaje desde Eteris Radio">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_next" value="https://socoda332.github.io/Eteris-Radio/contact.html">
+                    <input type="text" name="nombre" placeholder="Tu nombre" required>
+                    <input type="email" name="email" placeholder="Tu correo electrónico" required>
+                    <textarea name="mensaje" placeholder="Tu mensaje" rows="6" required></textarea>
                     <button type="submit" class="btn">Enviar mensaje</button>
                 </form>
                 <div class="section-action">
