@@ -38,7 +38,10 @@
                 <div class="hero-actions">
                     <button id="play-btn" class="btn btn-play" aria-label="Reproducir radio en vivo">▶ Reproducir</button>
                 </div>
-                <audio id="radio-player" style="display: none;"></audio>
+                <audio id="radio-player" crossorigin="anonymous" style="display: none;">
+                    <source src="http://s33.myradiostream.com:18972/" type="audio/mpeg">
+                    Tu navegador no soporta el elemento de audio.
+                </audio>
             </div>
         </section>
 
@@ -104,14 +107,12 @@
     <script>
         const playBtn = document.getElementById('play-btn');
         const radioPlayer = document.getElementById('radio-player');
-        const streamUrl = 'http://s33.myradiostream.com:18972/';
 
         playBtn.addEventListener('click', function() {
             if (radioPlayer.paused) {
-                radioPlayer.src = streamUrl;
                 radioPlayer.play().catch(error => {
                     console.error('Error al reproducir el stream:', error);
-                    alert('No se pudo conectar con el stream de radio. Intenta más tarde.');
+                    alert('No se pudo conectar con el stream de radio. Verifica que el servidor esté disponible.');
                 });
                 playBtn.textContent = '⏸ Pausar';
                 playBtn.classList.add('playing');
@@ -126,6 +127,14 @@
         radioPlayer.addEventListener('ended', function() {
             playBtn.textContent = '▶ Reproducir';
             playBtn.classList.remove('playing');
+        });
+
+        // Manejo de eventos de error
+        radioPlayer.addEventListener('error', function() {
+            console.error('Error de conexión con el stream');
+            playBtn.textContent = '▶ Reproducir';
+            playBtn.classList.remove('playing');
+            alert('Hubo un problema conectando con el servidor de radio.');
         });
     </script>
 </body>
