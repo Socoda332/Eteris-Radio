@@ -34,10 +34,13 @@
                 <h1>Bienvenido a Eteris Radio</h1>
                 <p>La mejor música, los mejores programas y una experiencia en vivo desde cualquier lugar.</p>
 
-                <p class="hero-note">Para escuchar en vivo, haz clic en el reproductor y disfruta de nuestra transmisión.</p>
-                <div class="hero-actions" id="player-container">
-                    <!-- El reproductor de MyRadioStream se cargará aquí -->
+                <p class="hero-note">Para escuchar en vivo, haz clic en el botón y disfruta de nuestra transmisión.</p>
+                <div class="hero-actions">
+                    <button id="play-btn" class="btn btn-play" aria-label="Reproducir radio en vivo">▶ Reproducir</button>
+                    <span id="status-msg" style="margin-left: 10px; font-size: 0.9em; color: #999;"></span>
                 </div>
+                <div id="player-container" style="margin-top: 20px;"></div>
+                <audio id="radio-player" style="display: none;"></audio>
             </div>
         </section>
 
@@ -100,6 +103,51 @@
         </div>
     </footer>
     <script src="script.js"></script>
+    <script>
+        const playBtn = document.getElementById('play-btn');
+        const radioPlayer = document.getElementById('radio-player');
+        const statusMsg = document.getElementById('status-msg');
+        const STREAM_URL = 'http://s33.myradiostream.com:18972/';
+
+        playBtn.addEventListener('click', function() {
+            if (radioPlayer.paused || radioPlayer.src === '') {
+                radioPlayer.src = STREAM_URL;
+                radioPlayer.crossOrigin = 'anonymous';
+                radioPlayer.play().catch(error => {
+                    console.error('Error al reproducir:', error);
+                    alert('No se pudo conectar con el stream. Intenta nuevamente.');
+                });
+                playBtn.textContent = '⏸ Pausar';
+                playBtn.classList.add('playing');
+                statusMsg.textContent = '🔴 EN VIVO';
+            } else {
+                radioPlayer.pause();
+                playBtn.textContent = '▶ Reproducir';
+                playBtn.classList.remove('playing');
+                statusMsg.textContent = '';
+            }
+        });
+
+        // Event listeners del reproductor
+        radioPlayer.addEventListener('play', function() {
+            playBtn.textContent = '⏸ Pausar';
+            playBtn.classList.add('playing');
+            statusMsg.textContent = '🔴 EN VIVO';
+        });
+
+        radioPlayer.addEventListener('pause', function() {
+            playBtn.textContent = '▶ Reproducir';
+            playBtn.classList.remove('playing');
+            statusMsg.textContent = '';
+        });
+
+        radioPlayer.addEventListener('error', function() {
+            console.error('Error de conexión');
+            playBtn.textContent = '▶ Reproducir';
+            playBtn.classList.remove('playing');
+            statusMsg.textContent = '❌ Error';
+        });
+    </script>
     <script src="//myradiostream.com/embed/Aramis"></script>
 </body>
 </html>
