@@ -7,8 +7,8 @@
     <meta name="theme-color" content="#0b0d23">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https: http:; media-src 'self' https: http:;">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https: http:; media-src 'self' https: http: blob:;">
     <title>Eteris Radio</title>
     <link rel="icon" href="Eteris_Radio.jpg" type="image/jpeg">
     <link rel="stylesheet" href="styles.css">
@@ -37,11 +37,9 @@
                 <p class="hero-note">Para escuchar en vivo, haz clic en el botón y disfruta de nuestra transmisión.</p>
                 <div class="hero-actions">
                     <button id="play-btn" class="btn btn-play" aria-label="Reproducir radio en vivo">▶ Reproducir</button>
+                    <span id="status-msg" style="margin-left: 10px; font-size: 0.9em; color: #999;"></span>
                 </div>
-                <audio id="radio-player" crossorigin="anonymous" style="display: none;">
-                    <source src="http://s33.myradiostream.com:18972/" type="audio/mpeg">
-                    Tu navegador no soporta el elemento de audio.
-                </audio>
+                <audio id="radio-player" style="display: none;"></audio>
             </div>
         </section>
 
@@ -107,34 +105,124 @@
     <script>
         const playBtn = document.getElementById('play-btn');
         const radioPlayer = document.getElementById('radio-player');
+        const statusMsg = document.getElementById('status-msg');
+        
+        // URLs del stream - probar múltiples formatos
+        const streamUrls = [
+            'http://s33.myradiostream.com:18972/',
+            'http://s33.myradiostream.com:18972/;stream.mp3',
+            'http://s33.myradiostream.com:18972/;stream'
+        ];
+        
+        let currentStreamIndex = 0;
+        const proxyUrls = [
+            'https://cors-anywhere.herokuapp.com/',
+            'https://api.allorigins.win/raw?url='
+        ];
+
+        async function playStream() {
+            statusMsg.textContent = 'Conectando...';
+            let connected = false;
+
+            // Primero intentar sin proxy (algunos navegadores lo permiten)
+            for (let streamUrl of streamUrls) {
+                try {
+                    radioPlayer.src = streamUrl;
+                    radioPlayer.crossOrigin = 'anonymous';
+                    
+                    const playPromise = radioPlayer.play();
+                    if (playPromise !== undefined) {
+                        await playPromise;
+                        connected = true;
+                        statusMsg.textContent = '🔴 EN VIVO';
+                        break;
+                    }
+                } catch (error) {
+                    console.log(`No se pudo conectar con ${streamUrl}:`, error);
+                }
+            }
+
+            // Si no funciona directamente, intentar con proxy
+            if (!connected) {
+                for (let proxyUrl of proxyUrls) {
+                    for (let streamUrl of streamUrls) {
+                        try {
+                            statusMsg.textContent = 'Conectando con proxy...';
+                            const fullUrl = proxyUrl + encodeURIComponent(streamUrl);
+                            
+                            const response = await fetch(fullUrl, {
+                                method: 'GET',
+                                headers: {
+                                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                                }
+                            });
+
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                const blobUrl = URL.createObjectURL(blob);
+                                radioPlayer.src = blobUrl;
+                                
+                                const playPromise = radioPlayer.play();
+                                if (playPromise !== undefined) {
+                                    await playPromise;
+                                    connected = true;
+                                    statusMsg.textContent = '🔴 EN VIVO';
+                                    break;
+                                }
+                            }
+                        } catch (error) {
+                            console.log(`Proxy ${proxyUrl} falló:`, error);
+                        }
+                    }
+                    if (connected) break;
+                }
+            }
+
+            if (!connected) {
+                statusMsg.textContent = '❌ Error';
+                alert('No se pudo conectar con el stream. Intenta nuevamente.');
+                playBtn.textContent = '▶ Reproducir';
+                playBtn.classList.remove('playing');
+            }
+        }
 
         playBtn.addEventListener('click', function() {
             if (radioPlayer.paused) {
-                radioPlayer.play().catch(error => {
-                    console.error('Error al reproducir el stream:', error);
-                    alert('No se pudo conectar con el stream de radio. Verifica que el servidor esté disponible.');
-                });
+                playStream();
                 playBtn.textContent = '⏸ Pausar';
                 playBtn.classList.add('playing');
             } else {
                 radioPlayer.pause();
                 playBtn.textContent = '▶ Reproducir';
                 playBtn.classList.remove('playing');
+                statusMsg.textContent = '';
             }
         });
 
-        // Reiniciar el botón si el stream se detiene
+        // Eventos del reproductor
+        radioPlayer.addEventListener('play', function() {
+            playBtn.textContent = '⏸ Pausar';
+            playBtn.classList.add('playing');
+            statusMsg.textContent = '🔴 EN VIVO';
+        });
+
+        radioPlayer.addEventListener('pause', function() {
+            playBtn.textContent = '▶ Reproducir';
+            playBtn.classList.remove('playing');
+            statusMsg.textContent = '';
+        });
+
         radioPlayer.addEventListener('ended', function() {
             playBtn.textContent = '▶ Reproducir';
             playBtn.classList.remove('playing');
+            statusMsg.textContent = '';
         });
 
-        // Manejo de eventos de error
         radioPlayer.addEventListener('error', function() {
             console.error('Error de conexión con el stream');
             playBtn.textContent = '▶ Reproducir';
             playBtn.classList.remove('playing');
-            alert('Hubo un problema conectando con el servidor de radio.');
+            statusMsg.textContent = '❌ Error de conexión';
         });
     </script>
 </body>
