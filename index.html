@@ -7,8 +7,8 @@
     <meta name="theme-color" content="#0b0d23">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https: //myradiostream.com; connect-src 'self' https:; frame-src 'self' https:;">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https: //myradiostream.com; connect-src 'self' https:; frame-src 'self' https:; media-src 'self' https: blob:;">
     <title>Eteris Radio</title>
     <link rel="icon" href="Eteris_Radio.jpg" type="image/jpeg">
     <link rel="stylesheet" href="styles.css">
@@ -107,19 +107,63 @@
         const playBtn = document.getElementById('play-btn');
         const radioPlayer = document.getElementById('radio-player');
         const statusMsg = document.getElementById('status-msg');
+        
+        // URLs del stream
         const STREAM_URL = 'http://s33.myradiostream.com:18972/';
+        
+        // Proxies HTTPS disponibles
+        const PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://cors-anywhere.herokuapp.com/',
+            'https://thingproxy.freeboard.io/fetch/'
+        ];
+
+        async function playWithProxy() {
+            statusMsg.textContent = 'Conectando...';
+            
+            for (let proxy of PROXIES) {
+                try {
+                    const proxiedUrl = proxy + encodeURIComponent(STREAM_URL);
+                    console.log('Intentando con proxy:', proxiedUrl);
+                    
+                    const response = await fetch(proxiedUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Icy-MetaData': '1',
+                            'User-Agent': 'Mozilla/5.0'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const blobUrl = URL.createObjectURL(blob);
+                        
+                        radioPlayer.src = blobUrl;
+                        radioPlayer.play();
+                        
+                        statusMsg.textContent = '🔴 EN VIVO';
+                        console.log('Conectado con éxito');
+                        return true;
+                    }
+                } catch (error) {
+                    console.log(`Proxy falló:`, error);
+                    continue;
+                }
+            }
+            
+            // Si todos los proxies fallan, mostrar error
+            statusMsg.textContent = '❌ Error';
+            alert('No se pudo conectar con el stream. Verifica que el servidor esté disponible.');
+            playBtn.textContent = '▶ Reproducir';
+            playBtn.classList.remove('playing');
+            return false;
+        }
 
         playBtn.addEventListener('click', function() {
             if (radioPlayer.paused || radioPlayer.src === '') {
-                radioPlayer.src = STREAM_URL;
-                radioPlayer.crossOrigin = 'anonymous';
-                radioPlayer.play().catch(error => {
-                    console.error('Error al reproducir:', error);
-                    alert('No se pudo conectar con el stream. Intenta nuevamente.');
-                });
+                playWithProxy();
                 playBtn.textContent = '⏸ Pausar';
                 playBtn.classList.add('playing');
-                statusMsg.textContent = '🔴 EN VIVO';
             } else {
                 radioPlayer.pause();
                 playBtn.textContent = '▶ Reproducir';
@@ -132,20 +176,30 @@
         radioPlayer.addEventListener('play', function() {
             playBtn.textContent = '⏸ Pausar';
             playBtn.classList.add('playing');
-            statusMsg.textContent = '🔴 EN VIVO';
+            if (!statusMsg.textContent.includes('❌')) {
+                statusMsg.textContent = '🔴 EN VIVO';
+            }
         });
 
         radioPlayer.addEventListener('pause', function() {
             playBtn.textContent = '▶ Reproducir';
             playBtn.classList.remove('playing');
-            statusMsg.textContent = '';
+            if (!statusMsg.textContent.includes('❌')) {
+                statusMsg.textContent = '';
+            }
         });
 
-        radioPlayer.addEventListener('error', function() {
-            console.error('Error de conexión');
+        radioPlayer.addEventListener('error', function(e) {
+            console.error('Error del reproductor:', e);
             playBtn.textContent = '▶ Reproducir';
             playBtn.classList.remove('playing');
             statusMsg.textContent = '❌ Error';
+        });
+
+        radioPlayer.addEventListener('ended', function() {
+            playBtn.textContent = '▶ Reproducir';
+            playBtn.classList.remove('playing');
+            statusMsg.textContent = '';
         });
     </script>
     <script src="//myradiostream.com/embed/Aramis"></script>
