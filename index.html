@@ -7,8 +7,8 @@
     <meta name="theme-color" content="#0b0d23">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https: http:; media-src 'self' https: http: blob:;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https: //myradiostream.com; connect-src 'self' https:; frame-src 'self' https:;">
     <title>Eteris Radio</title>
     <link rel="icon" href="Eteris_Radio.jpg" type="image/jpeg">
     <link rel="stylesheet" href="styles.css">
@@ -34,12 +34,10 @@
                 <h1>Bienvenido a Eteris Radio</h1>
                 <p>La mejor música, los mejores programas y una experiencia en vivo desde cualquier lugar.</p>
 
-                <p class="hero-note">Para escuchar en vivo, haz clic en el botón y disfruta de nuestra transmisión.</p>
-                <div class="hero-actions">
-                    <button id="play-btn" class="btn btn-play" aria-label="Reproducir radio en vivo">▶ Reproducir</button>
-                    <span id="status-msg" style="margin-left: 10px; font-size: 0.9em; color: #999;"></span>
+                <p class="hero-note">Para escuchar en vivo, haz clic en el reproductor y disfruta de nuestra transmisión.</p>
+                <div class="hero-actions" id="player-container">
+                    <!-- El reproductor de MyRadioStream se cargará aquí -->
                 </div>
-                <audio id="radio-player" style="display: none;"></audio>
             </div>
         </section>
 
@@ -102,166 +100,6 @@
         </div>
     </footer>
     <script src="script.js"></script>
-    <script>
-        const playBtn = document.getElementById('play-btn');
-        const radioPlayer = document.getElementById('radio-player');
-        const statusMsg = document.getElementById('status-msg');
-        
-        const STREAM_URL = 'http://s33.myradiostream.com:18972/';
-        const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-
-        // Función para procesar streams Shoutcast 1
-        async function playShoutcastStream() {
-            statusMsg.textContent = 'Conectando...';
-            
-            try {
-                // Intentar conexión directa primero
-                console.log('Intentando conexión directa...');
-                const response = await fetch(STREAM_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Icy-MetaData': '1',
-                        'User-Agent': 'VLC/3.0.0'
-                    },
-                    mode: 'cors',
-                    credentials: 'omit'
-                });
-
-                if (response.ok) {
-                    await playStreamFromResponse(response);
-                    return;
-                }
-            } catch (error) {
-                console.log('Conexión directa falló, intentando con proxy...', error);
-            }
-
-            // Si falla, intentar con proxy
-            try {
-                const proxiedUrl = PROXY_URL + STREAM_URL;
-                const response = await fetch(proxiedUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Icy-MetaData': '1',
-                        'User-Agent': 'VLC/3.0.0'
-                    }
-                });
-
-                if (response.ok) {
-                    await playStreamFromResponse(response);
-                    return;
-                }
-            } catch (error) {
-                console.log('Proxy también falló:', error);
-            }
-
-            // Fallback: usar audio HTML5 directo
-            try {
-                console.log('Usando fallback HTML5 Audio...');
-                radioPlayer.src = STREAM_URL;
-                radioPlayer.crossOrigin = 'anonymous';
-                await radioPlayer.play();
-                statusMsg.textContent = '🔴 EN VIVO';
-                return;
-            } catch (error) {
-                console.error('Error en fallback:', error);
-                statusMsg.textContent = '❌ Error';
-                alert('No se pudo conectar con el stream. Verifica que el servidor esté disponible.');
-                playBtn.textContent = '▶ Reproducir';
-                playBtn.classList.remove('playing');
-            }
-        }
-
-        // Procesar respuesta del stream Shoutcast
-        async function playStreamFromResponse(response) {
-            const reader = response.body.getReader();
-            const chunks = [];
-            let icyMetaint = null;
-
-            // Leer headers Shoutcast
-            const contentType = response.headers.get('Content-Type') || 'audio/mpeg';
-            const metaintHeader = response.headers.get('icy-metaint');
-            
-            if (metaintHeader) {
-                icyMetaint = parseInt(metaintHeader);
-                console.log('Metadata interval:', icyMetaint);
-            }
-
-            try {
-                let bytesRead = 0;
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    // Si hay intervalo de metadata, filtrar los bloques de metadata
-                    if (icyMetaint) {
-                        chunks.push(...value);
-                    } else {
-                        chunks.push(...value);
-                    }
-
-                    // Limitar a los primeros 500KB para evitar problemas de memoria
-                    if (chunks.length > 500000) {
-                        break;
-                    }
-                }
-
-                // Crear Blob con los datos del stream
-                const audioData = new Uint8Array(chunks);
-                const blob = new Blob([audioData], { type: contentType });
-                const blobUrl = URL.createObjectURL(blob);
-
-                // Reproducir
-                radioPlayer.src = blobUrl;
-                radioPlayer.play();
-                statusMsg.textContent = '🔴 EN VIVO';
-                console.log('Stream iniciado correctamente');
-
-            } catch (error) {
-                console.error('Error procesando stream:', error);
-                statusMsg.textContent = '❌ Error';
-                throw error;
-            }
-        }
-
-        // Event listeners del botón
-        playBtn.addEventListener('click', function() {
-            if (radioPlayer.paused) {
-                playShoutcastStream();
-                playBtn.textContent = '⏸ Pausar';
-                playBtn.classList.add('playing');
-            } else {
-                radioPlayer.pause();
-                playBtn.textContent = '▶ Reproducir';
-                playBtn.classList.remove('playing');
-                statusMsg.textContent = '';
-            }
-        });
-
-        // Event listeners del reproductor
-        radioPlayer.addEventListener('play', function() {
-            playBtn.textContent = '⏸ Pausar';
-            playBtn.classList.add('playing');
-            statusMsg.textContent = '🔴 EN VIVO';
-        });
-
-        radioPlayer.addEventListener('pause', function() {
-            playBtn.textContent = '▶ Reproducir';
-            playBtn.classList.remove('playing');
-            statusMsg.textContent = '';
-        });
-
-        radioPlayer.addEventListener('ended', function() {
-            playBtn.textContent = '▶ Reproducir';
-            playBtn.classList.remove('playing');
-            statusMsg.textContent = '';
-        });
-
-        radioPlayer.addEventListener('error', function(e) {
-            console.error('Error del reproductor:', e);
-            playBtn.textContent = '▶ Reproducir';
-            playBtn.classList.remove('playing');
-            statusMsg.textContent = '❌ Error';
-        });
-    </script>
+    <script src="//myradiostream.com/embed/Aramis"></script>
 </body>
 </html>
